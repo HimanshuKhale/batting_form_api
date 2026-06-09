@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Khel AI Batting Form API</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #08111f; color: #eef5ff; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px; }
+    .hero { border: 1px solid rgba(255,255,255,.14); background: linear-gradient(135deg, rgba(47,119,255,.20), rgba(0,220,174,.10)); border-radius: 24px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    h1 { margin: 0 0 8px; font-size: 36px; }
+    p { color: #bed0e6; line-height: 1.6; }
+    code, pre { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; color: #d7fbe8; }
+    code { padding: 2px 6px; }
+    pre { padding: 16px; overflow-x: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 22px; }
+    .card { border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); border-radius: 18px; padding: 18px; }
+    a { color: #8fe7ff; }
+    button { border: 0; border-radius: 12px; padding: 12px 16px; background: #54e0b8; color: #061017; font-weight: 700; cursor: pointer; }
+    input { width: 100%; box-sizing: border-box; padding: 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.2); color: white; margin: 6px 0 12px; }
+    .result { margin-top: 14px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Khel AI Batting Form API</h1>
+      <p>Flask deployment for the batting form model exported from your Colab notebook. Use this service from Khel AI MVP or test it directly here.</p>
+      <p><a href="/health">Health</a> · <a href="/api/model-info">Model Info</a> · <a href="/api/leaderboard">Leaderboard</a> · <a href="/api/players">Players</a></p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Try a Prediction</h2>
+        <label>Runs off bat</label><input id="runs" value="4" />
+        <label>Pressure index</label><input id="pressure" value="0.72" />
+        <label>Shot risk score</label><input id="risk" value="0.38" />
+        <label>Batter control score</label><input id="control" value="0.82" />
+        <button onclick="predict()">Predict Form</button>
+        <pre id="prediction" class="result"></pre>
+      </div>
+      <div class="card">
+        <h2>Important Endpoints</h2>
+        <pre>GET  /health
+GET  /api/model-info
+GET  /api/players
+GET  /api/leaderboard?limit=10
+GET  /api/player/15
+GET  /api/player/15/history
+POST /api/predict
+POST /api/simulate</pre>
+      </div>
+    </section>
+  </main>
+  <script>
+    async function predict() {
+      const payload = {
+        runs_off_bat: Number(document.getElementById('runs').value),
+        extras: 0,
+        current_run_rate: 8.5,
+        required_run_rate: 9.2,
+        pressure_index: Number(document.getElementById('pressure').value),
+        expected_runs: 1.4,
+        expected_wicket_probability: 0.08,
+        shot_risk_score: Number(document.getElementById('risk').value),
+        batter_control_score: Number(document.getElementById('control').value),
+        target_is_wicket: 0,
+        target_total_runs: Number(document.getElementById('runs').value)
+      };
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      document.getElementById('prediction').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
